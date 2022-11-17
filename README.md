@@ -3,15 +3,15 @@ This is a bit of an odd experiment. Over the course of a month, about a dozen Di
 <br>
 Subjects will also be able to spend their points in a number of ways, many of which will be to the detriment of their fellow subjects. All of the information about how the subjects spend their money will be tracked, but not revealed until after the experiment finishes. Keep in mind, the winner is not chosen by the amount of points they have in the end, they are decided by the total amount of points that they have been given throughout the experiment.
 
-#Hypothesis
+# Hypothesis
 During this experiment, subjects will be given the opportunity to choose when they would like to give their points to others. This will lead to dramatic shifts in the leaderboard over the course of the month. There will most lilkely be a very heavy correlation between likeability and how many dollars subjects spend. For example, someone who spends lots of money to punish their peers will most likely not be rewarded with any points in return, thus putting them at the bottom of the leaderboard. Subjects that send lots of money to their peers will most likely have the favor returned. This creates an interesting dynamic because the less-liked subjects need the money in order to buy things, but they severely lack funding. On the other end, subjects that are liked by many will have more than enough points to spare, which will lead to a spreading-out of wealth between many of the subjects.am
 
-#Specific Rules
+# Specific Rules
 - Each subject starts with 100 HD (Hamilcat Dollars)
 - Subjects are allowed to send any and all of their points to someone else, at any time
 - Points can be traded in for "prizes" (Specific list coming soon)
 - The winner of the challenge is decided by a combination of total points given to them, not by the amount of points they possess when the experiment ends
 - The leaderboard (current points) is visible to all subjects at any time during the experiment, as well as each subject's individual score
 
-#Observations
+# Observations
 The experiment is still in process...
