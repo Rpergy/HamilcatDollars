@@ -7,6 +7,11 @@ class MyClient(discord.Client):
 
     async def on_message(self, message):
         print(f'Message from {message.author.id}: {message.content}')
+
+        if message.content.startswith("HD!embedtest"):
+            embed = discord.Embed(title="Sample Embed", description="This is a test embed")
+            await message.channel.send(embed)
+
         if message.content.startswith("HD!register"):
             records = open("records.json", "r")
             data = json.load(records)
@@ -20,12 +25,26 @@ class MyClient(discord.Client):
             records = open("records.json", "w")
             newUser = {
                 "id": "<@" + str(message.author.id) + ">",
-                "points": 100
+                "alias": message.author.split("#")[0], #removes tag from message author
+                "points": 100,
+                "pointsSent": 0,
+                "pointsReceived": 0
             }
             data["users"].append(newUser)
             records.write(json.dumps(data))
             records.close()
             await message.channel.send("Account created! You have 100 points!")
+
+        if message.content.startswith("HD!leaderboard"):
+            records = open("records.json", "r")
+            data = json.load(records)
+
+            leaderboard = []
+            message = ""
+            for i in data["users"]:
+                leaderboard.append(i)
+
+            records.close()
 
         if message.content.startswith("HD!check"):
             splitMessage = message.content.split()
@@ -63,6 +82,7 @@ class MyClient(discord.Client):
                     if i["id"] == userId:
                         print("Adding points")
                         i["points"] += int(pointsVal)
+                        i["pointsReceived"] += int(pointsVal)
                     if i["id"] == "<@" + str(message.author.id) + ">":
                         if i["points"] - int(pointsVal) < 0:
                             fail = True;
@@ -70,6 +90,7 @@ class MyClient(discord.Client):
                             break;
                         print("Subtracting points")
                         i["points"] -= int(pointsVal)
+                        i["pointsSent"] += int(pointsVal)
 
                 if fail == False:
                     await message.channel.send("Sent " + str(pointsVal) + " points to " + str(userId))
