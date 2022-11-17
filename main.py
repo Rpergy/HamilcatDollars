@@ -8,10 +8,6 @@ class MyClient(discord.Client):
     async def on_message(self, message):
         print(f'Message from {message.author.id}: {message.content}')
 
-        if message.content.startswith("HD!embedtest"):
-            embed = discord.Embed(title="Sample Embed", description="This is a test embed")
-            await message.channel.send(embed)
-
         if message.content.startswith("HD!register"):
             records = open("records.json", "r")
             data = json.load(records)
@@ -23,9 +19,10 @@ class MyClient(discord.Client):
                     return
             
             records = open("records.json", "w")
+            print(str(message.author).split("#")[0])
             newUser = {
                 "id": "<@" + str(message.author.id) + ">",
-                "alias": message.author.split("#")[0], #removes tag from message author
+                "alias": str(message.author).split("#")[0], #removes tag from message author
                 "points": 100,
                 "pointsSent": 0,
                 "pointsReceived": 0
@@ -39,10 +36,10 @@ class MyClient(discord.Client):
             records = open("records.json", "r")
             data = json.load(records)
 
-            leaderboard = []
-            message = ""
-            for i in data["users"]:
-                leaderboard.append(i)
+            embed = discord.Embed(title="Leaderboard!!!!", description="This is a temporary leaderboard. The real winner of the challenge is based\non how many points they have been sent, not total points")
+            for i in data["users"]:       
+                embed.add_field(name=i["alias"], value=i["points"], inline=False)
+            await message.channel.send(embed=embed)
 
             records.close()
 
@@ -63,7 +60,7 @@ class MyClient(discord.Client):
                 data = json.load(records)
                 for i in data["users"]:
                     if i["id"] == str(splitMessage[1]):
-                        await message.channel.send(splitMessage[1] + " has " + str(i["points"]) + " points!")
+                        await message.channel.send(str(i["alias"]) + " has " + str(i["points"]) + " points!")
                         return
                 
                 await message.channel.send("Could not find account")
@@ -75,31 +72,40 @@ class MyClient(discord.Client):
             userId = splitMessage[1]
             pointsVal = splitMessage[2]
 
-            if(int(pointsVal) > 0):
+            foundReceiver = False
+            foundSender = False
+
+            if int(pointsVal) > 0:
                 records = open("records.json", "r")
                 data = json.load(records)
                 for i in data["users"]:
                     if i["id"] == userId:
-                        print("Adding points")
+                        foundReceiver = True
                         i["points"] += int(pointsVal)
                         i["pointsReceived"] += int(pointsVal)
                     if i["id"] == "<@" + str(message.author.id) + ">":
+                        foundSender = True
                         if i["points"] - int(pointsVal) < 0:
                             fail = True;
-                            await message.channel.send("You cannot send that many points!")
                             break;
                         print("Subtracting points")
                         i["points"] -= int(pointsVal)
                         i["pointsSent"] += int(pointsVal)
 
-                if fail == False:
+                if fail == False and foundSender and foundReceiver:
                     await message.channel.send("Sent " + str(pointsVal) + " points to " + str(userId))
+                elif foundSender:
+                    await message.channel.send("That account does not exist!")
+                elif foundReceiver and fail == False:
+                    await message.channel.send("You do not have an account yet!")
+                else:
+                    await message.channel.send("You cannot send that many points!")
 
                 records.close()
                 records = open("records.json", "w")
                 records.write(json.dumps(data))
             else:
-                await message.channel.send("You cannot send that many points!")
+                await message.channel.send("Muthu!")
 
 intents = discord.Intents.default()
 intents.message_content = True

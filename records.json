@@ -1,13 +1,6 @@
 {
   "users": [
     {
-      "id": "<@383421702199050243>",
-      "alias": "RyFi",
-      "points": 100,
-      "pointsSent": 0,
-      "pointsReceived": 0
-    },
-    {
       "id": "<@585599721804922884>",
       "alias": "Rpergy",
       "points": 100,
@@ -15,8 +8,15 @@
       "pointsReceived": 0
     },
     {
-      "id": "<@615648000957743104>",
-      "alias": "Ducky",
+      "id": "<@383421702199050243>",
+      "alias": "RyFi",
+      "points": 69,
+      "pointsSent": 31,
+      "pointsReceived": 0
+    },
+    {
+      "id": "<@582646431794331765>",
+      "alias": "strb",
       "points": 100,
       "pointsSent": 0,
       "pointsReceived": 0
