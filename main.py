@@ -8,7 +8,7 @@ class MyClient(discord.Client):
     async def on_message(self, message):
         print(f'Message from {message.author.id}: {message.content}')
         if message.content.startswith("HD!check"):
-            records = open("records.txt", "r")
+            records = open("records.json", "r")
             data = json.load(records)
             for i in data["users"]:
                 if i["id"] == "<@" + str(message.author.id) + ">":
@@ -20,7 +20,7 @@ class MyClient(discord.Client):
             userId = splitMessage[1]
             pointsVal = splitMessage[2]
 
-            records = open("records.txt", "r")
+            records = open("records.json", "r")
             data = json.load(records)
             for i in data["users"]:
                 if i["id"] == userId:
