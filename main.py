@@ -29,8 +29,10 @@ class MyClient(discord.Client):
             }
             data["users"].append(newUser)
             records.write(json.dumps(data))
+
+            await message.channel.send("Created your account! You have 100 points")
+
             records.close()
-            await message.channel.send("Account created! You have 100 points!")
 
         if message.content.startswith("HD!leaderboard"):
             records = open("records.json", "r")
