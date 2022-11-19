@@ -2,112 +2,141 @@ import discord
 import json
 
 class MyClient(discord.Client):
+    @staticmethod
+    def searchUser(userID):
+        records = open("records.json", "r")
+        data = json.load(records)
+        records.close()
+
+        for i in data["users"]:
+            if i["id"] == userID:
+                return True
+        return False
+    
+    @staticmethod
+    def allInfo():
+        records = open("records.json", "r")
+        data = json.load(records)
+        records.close()
+        return data
+
+    @staticmethod
+    def getInfo(userID):
+        records = open("records.json", "r")
+        data = json.load(records)
+        records.close()
+
+        for i in data["users"]:
+            if i["id"] == userID:
+                return i
+        return False
+    
+    @staticmethod 
+    def setInfo(userID, featureName, featureVal):
+        data = MyClient.allInfo()
+
+        for i in data["users"]:
+            if i["id"] == userID:
+                i[featureName] = featureVal
+                break
+        
+        records = open("records.json", "w")
+        records.write(json.dumps(data))
+        records.close()
+
     async def on_ready(self):
         print(f'Logged on as {self.user}!')
 
     async def on_message(self, message):
-        print(f'Message from {message.author.id}: {message.content}')
+        print(f'Message from {message.author} ({message.author.id}): {message.content}')
 
-        if message.content.startswith("HD!register"):
-            records = open("records.json", "r")
-            data = json.load(records)
+        splitMessage = message.content.split()
+        senderId = "<@" + str(message.author.id) + ">"
 
-            for i in data["users"]:
-                if i["id"] == "<@" + str(message.author.id) + ">":
-                    await message.channel.send("You already have an account!")
-                    records.close()
-                    return
-            
-            records = open("records.json", "w")
-            print(str(message.author).split("#")[0])
-            newUser = {
-                "id": "<@" + str(message.author.id) + ">",
-                "alias": str(message.author).split("#")[0], #removes tag from message author
-                "points": 100,
-                "pointsSent": 0,
-                "pointsReceived": 0
-            }
-            data["users"].append(newUser)
-            records.write(json.dumps(data))
+        if splitMessage[0] == "HD!check":
+            if len(splitMessage) == 1:
+                if self.searchUser(senderId):
+                    await message.channel.send(f"You have {self.getInfo(senderId)['points']} points!")
+                else:
+                    await message.channel.send("You do not have an account! Try making one with `HD! register`")
+            else:
+                if self.searchUser(splitMessage[1]):
+                    info = self.getInfo(splitMessage[1])
+                    await message.channel.send(f"{info['alias']} has {info['points']} points!")
+                else:
+                    await message.channel.send("That person does not have an account!")
+        
+        if splitMessage[0] == "HD!register":
+            senderId = "<@" + str(message.author.id) + ">"
 
-            await message.channel.send("Created your account! You have 100 points")
+            if self.searchUser(senderId):
+                await message.channel.send("You already have an account!")
+                return
+            else:
+                data = self.allInfo()
+                records = open("records.json", "w")
+                print(str(message.author).split("#")[0])
+                newUser = {
+                    "id": senderId,
+                    "alias": str(message.author).split("#")[0], #removes tag from message author
+                    "points": 100,
+                    "pointsSent": 0,
+                    "pointsReceived": 0
+                }
+                data["users"].append(newUser)
+                records.write(json.dumps(data))
 
-            records.close()
-
-        if message.content.startswith("HD!leaderboard"):
-            records = open("records.json", "r")
-            data = json.load(records)
+                await message.channel.send("Created your account! You have 100 points")
+                records.close()
+        
+        if splitMessage[0] == "HD!leaderboard":
+            data = self.allInfo()
 
             embed = discord.Embed(title="Leaderboard!!!!", description="This is a temporary leaderboard. The real winner of the challenge is based\non how many points they have been sent, not total points")
             for i in data["users"]:       
                 embed.add_field(name=i["alias"], value=i["points"], inline=False)
-            await message.channel.send(embed=embed)
-
-            records.close()
-
-        if message.content.startswith("HD!check"):
-            splitMessage = message.content.split()
-
+            await message.channel.send("pppupu", embed=embed)
+        
+        if splitMessage[0] == "HD!send":
             if len(splitMessage) == 1:
-                records = open("records.json", "r")
-                data = json.load(records)
-                for i in data["users"]:
-                    if i["id"] == "<@" + str(message.author.id) + ">":
-                        await message.channel.send("You have " + str(i["points"]) + " points!")
-                        records.close()
-                        return
-                await message.channel.send("Could not find account")
-            else:
-                records = open("records.json", "r")
-                data = json.load(records)
-                for i in data["users"]:
-                    if i["id"] == str(splitMessage[1]):
-                        await message.channel.send(str(i["alias"]) + " has " + str(i["points"]) + " points!")
-                        return
-                
-                await message.channel.send("Could not find account")
-                records.close()
+                await message.channel.send("Please enter a valid user")
+                return
+            elif len(splitMessage) == 2:
+                await message.channel.send("Please enter a valid number")
+                return
+            
+            sender = "<@" + str(message.author.id) + ">"
+            receiver = splitMessage[1]
+            print(splitMessage[2])
+            try:
+                amount = int(splitMessage[2])
+                print("Worked")
+                if self.searchUser(sender):
+                    if self.searchUser(receiver):
+                        if amount > 0:
+                            senderInfo = self.getInfo(sender)
+                            receiverInfo = self.getInfo(receiver)
 
-        if message.content.startswith("HD!send"):
-            fail = False
-            splitMessage = message.content.split()
-            userId = splitMessage[1]
-            pointsVal = splitMessage[2]
+                            if senderInfo["points"] >= amount:
 
-            foundReceiver = False
-            foundSender = False
+                                self.setInfo(sender, "points", senderInfo["points"] - amount)
+                                self.setInfo(sender, "pointsSent", senderInfo["pointsSent"] + amount)
 
-            if int(pointsVal) > 0:
-                records = open("records.json", "r")
-                data = json.load(records)
-                for i in data["users"]:
-                    if i["id"] == userId:
-                        foundReceiver = True
-                        i["points"] += int(pointsVal)
-                        i["pointsReceived"] += int(pointsVal)
-                    if i["id"] == "<@" + str(message.author.id) + ">":
-                        foundSender = True
-                        if i["points"] - int(pointsVal) < 0:
-                            fail = True;
-                            break;
-                        print("Subtracting points")
-                        i["points"] -= int(pointsVal)
-                        i["pointsSent"] += int(pointsVal)
+                                self.setInfo(receiver, "points", receiverInfo["points"] + amount)
+                                self.setInfo(receiver, "pointsReceived", receiverInfo["pointsReceived"] + amount)
 
-                if fail == False and foundSender and foundReceiver:
-                    await message.channel.send("Sent " + str(pointsVal) + " points to " + str(userId))
-                elif foundSender:
-                    await message.channel.send("That account does not exist!")
-                elif foundReceiver and fail == False:
-                    await message.channel.send("You do not have an account yet!")
+                                await message.channel.send(f"Sent {amount} points to {receiverInfo['alias']}!")
+                            else:
+                                await message.channel.send("You do not have that many points!")
+                        else:
+                            await message.channel.send("Please enter a positive number")
+                    else:
+                        await message.channel.send("Please enter a valid user")
                 else:
-                    await message.channel.send("You cannot send that many points!")
+                    await message.channel.send("You do not have an account!")
+            except:
+                await message.channel.send("Please enter a valid number")
 
-                records.close()
-                records = open("records.json", "w")
-                records.write(json.dumps(data))
-            else:
-                await message.channel.send("Muthu!")
 
 intents = discord.Intents.default()
 intents.message_content = True
