@@ -142,4 +142,4 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 client = MyClient(intents=intents)
-client.run('MTA0MjYyOTI1Mzc1NTMxODI3Mg.GRH2th.J4tIUJ9Ld_1n_CawkZAXr2S11-uk3XRn02oQA8')
+client.run(open("key.txt", "r").read())
